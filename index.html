@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <script src="https://cdn.pubnub.com/sdk/javascript/pubnub.4.27.0.js"></script>
+  <script>
+
+    const pubnub = new PubNub({
+      subscribeKey: "sub-c-fa806a90-f675-11e9-8dd7-ca99873d233c",
+    });
+
+    pubnub.addListener({
+      message: function (m) {
+        console.log(m);
+      }
+    });
+
+    pubnub.subscribe({
+      channels: ['smart_pill_bottle_events'],
+    });
+  </script>
+</head>
+
+<body>
+</body>
+
+</html>
