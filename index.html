@@ -2,16 +2,89 @@
 <html>
 
 <head>
+  <link href="https://fonts.googleapis.com/css?family=Roboto&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css" rel="stylesheet">
+
   <script src="https://cdn.pubnub.com/sdk/javascript/pubnub.4.27.0.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/date-fns/1.30.1/date_fns.min.js"></script>
+  <style>
+    body {
+      font-family: 'Roboto', sans-serif;
+      display: flex;
+      flex-direction: column;
+    }
+
+    body>div {
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="header">
+    <h1> Smart Pill Bottle</h1>
+  </div>
+  <div class="subheader">
+    <h3>Events</h3>
+  </div>
+  <div class="data">
+    <table>
+      <thead>
+        <tr>
+          <th>
+            Bottle ID
+          </th>
+          <th>
+            Tilted State
+          </th>
+          <th>
+            Timestamp
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+
+      </tbody>
+    </table>
+  </div>
   <script>
 
+    const tableBody = document.querySelector('.data > table > tbody');
+
+    function createCell(text) {
+      const cell = document.createElement('td');
+      cell.textContent = text;
+      return cell;
+    };
+
+    function createRow(response) {
+      const row = document.createElement('tr');
+      const message = response.message || response.entry;
+
+      row.appendChild(createCell(message.sender));
+      row.appendChild(createCell(message.content.bottle_tilted));
+      row.appendChild(createCell(dateFns.parse(response.timetoken / 10000)));
+      return row;
+    }
+
     const pubnub = new PubNub({
-      subscribeKey: "sub-c-fa806a90-f675-11e9-8dd7-ca99873d233c",
+      subscribeKey: 'sub-demo'
     });
 
+    pubnub.history(
+      { channel: 'smart_pill_bottle_events', reverse: false, count: 20 },
+      (status, res) => {
+        res.messages.forEach(response => {
+          tableBody.appendChild(createRow(response));
+        });
+      }
+    );
+
     pubnub.addListener({
-      message: function (m) {
-        console.log(m);
+      message: function (response) {
+        tableBody.appendChild(createRow(response));
       }
     });
 
@@ -19,9 +92,6 @@
       channels: ['smart_pill_bottle_events'],
     });
   </script>
-</head>
-
-<body>
 </body>
 
 </html>
